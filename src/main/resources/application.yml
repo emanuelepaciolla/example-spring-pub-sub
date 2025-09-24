@@ -15,6 +15,18 @@ spring:
     hikari:
       connection-timeout: 20000
       maximum-pool-size: 5
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID}
+      pubsub:
+        enabled: true
+        emulator-host: # vuoto = usa Pub/Sub reale
+      credentials:
+        enabled: true
 
 server:
   port: ${PORT:8080}
@@ -28,3 +40,9 @@ management:
 logging:
   level:
     com.example.gcpdemo: INFO
+
+gcp:
+  project-id: ${GCP_PROJECT_ID}
+  pubsub:
+    topic-name: ${PUBSUB_TOPIC}
+    subscription-name: ${PUBSUB_SUB}

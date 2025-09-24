@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 public class PubSubService {
 
     private final PubSubTemplate pubSubTemplate;
+
     private final MessageService messageService;
 
     @Value("${gcp.pubsub.topic-name}")
