@@ -1,0 +1,30 @@
+# src/main/resources/application-local.yml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gcpdemo
+    username: postgres
+    password: postgres
+
+  jpa:
+    show-sql: true
+
+  cloud:
+    gcp:
+      project-id: local-project
+      pubsub:
+        emulator-host: localhost:8085
+        enabled: true
+      credentials:
+        enabled: false
+
+# Configurazione custom per Pub/Sub
+gcp:
+  project-id: local-project
+  pubsub:
+    topic-name: demo-topic
+    subscription-name: demo-subscription
+    emulator-host: localhost:8085
+
+logging:
+  level:
+    com.example.gcpdemo: DEBUG

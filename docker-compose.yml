@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: gcpdemo-postgres
+    environment:
+      POSTGRES_DB: gcpdemo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Google Pub/Sub Emulator
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
+    container_name: gcpdemo-pubsub
+    ports:
+      - "8085:8085"
+    command: ["gcloud", "beta", "emulators", "pubsub", "start", "--host-port=0.0.0.0:8085", "--project=local-project"]
+
+  # Inizializza topic e subscription
+  pubsub-init:
+    image: curlimages/curl:latest
+    container_name: gcpdemo-pubsub-init
+    depends_on:
+      - pubsub-emulator
+    entrypoint: ["/bin/sh"]
+    command:
+      - -c
+      - |
+        echo "Waiting for Pub/Sub emulator..."
+        sleep 10
+        echo "Creating topic via REST API..."
+        curl -X PUT http://pubsub-emulator:8085/v1/projects/local-project/topics/demo-topic
+        echo ""
+        echo "Creating subscription via REST API..."
+        curl -X PUT http://pubsub-emulator:8085/v1/projects/local-project/subscriptions/demo-subscription \
+          -H "Content-Type: application/json" \
+          -d '{"topic":"projects/local-project/topics/demo-topic"}'
+        echo ""
+        echo "✅ Pub/Sub setup completed!"
+
+  # Adminer - Database UI
+  adminer:
+    image: adminer:4.8.1
+    container_name: gcpdemo-adminer
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+
+volumes:
+  postgres_data:
